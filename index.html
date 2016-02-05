@@ -471,8 +471,8 @@
 					update = update.replace(/ice_host.Slave1: .*/g, 'ice_host.Slave1: '+newIP);
 					update = update.replace(/ice_host.Slave2: .*/g, 'ice_host.Slave2: '+newIP);
 					update = update.replace(/ice_host.Slave3: .*/g, 'ice_host.Slave3: '+newIP);
-					update = update.replace(/corba.endpoint:  .*/g, 'corba.endpoint:  '+newIP+';');
-					update = update.replace(/corba.endpoints: .*/g, 'corba.endpoints: '+newIP+';');				
+					update = update.replace(/corba.endpoint:  .*/g, 'corba.endpoint:  '+newIP+':');
+					update = update.replace(/corba.endpoints: .*/g, 'corba.endpoints: '+newIP+':');				
 				} else {
 					//console.log("Local IP");
 					var update = dataRtc.replace(/corba.nameservers: .*/g, "corba.nameservers: 127.0.0.1");
@@ -486,8 +486,8 @@
 					update = update.replace(/ice_host.Slave1: .*/g, "ice_host.Slave1: 127.0.0.1");
 					update = update.replace(/ice_host.Slave2: .*/g, "ice_host.Slave2: 127.0.0.1");
 					update = update.replace(/ice_host.Slave3: .*/g, "ice_host.Slave3: 127.0.0.1");
-					update = update.replace(/corba.endpoint:  .*/g, "corba.endpoint:  127.0.0.1;");
-					update = update.replace(/corba.endpoints: .*/g, "corba.endpoints: 127.0.0.1;");
+					update = update.replace(/corba.endpoint:  .*/g, "corba.endpoint:  127.0.0.1:");
+					update = update.replace(/corba.endpoints: .*/g, "corba.endpoints: 127.0.0.1:");
 				}
 				
 				fs.writeFile('C:/Users/Public/Documents/VirCA/'+selectedVirCAVersion+'/rtc.conf', update, 'utf8', function (err) {

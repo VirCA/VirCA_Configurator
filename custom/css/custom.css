@@ -1,3 +1,11 @@
+body {
+	padding: 0 5px 0 5px;
+}
+
+h4 {
+	padding-top: 2px;
+}
+
 .select-field-width {
 	width: 100%;
 	color: green;
@@ -17,5 +25,9 @@
 span, option {
 	color: green;
 	font-size: 15px;
+}
+
+#notVersion {
+	color: red;
 }
 

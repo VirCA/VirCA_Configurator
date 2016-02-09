@@ -19,48 +19,48 @@
 
 <body>
 
-	<h4>VirCA version</h4>
+	<h4>VirCA version: <span id="notVersion"></span></h4>
 		<select class="select-field-width" id="version" onchange="getDataFromSelectedVirCAVersion()" >
 		
 		</select>
 
-	<h4>Master or Slave VirCA</h4>
+	<h4>VirCA is:</h4>
 		<select class="select-field-width" id="ms" onchange="setNewMs()" >
 
 		</select>
 
-	<h4>DirectX or OpenGL Render</h4>
+	<h4>Rendering engine:</h4>
 		<select class="select-field-width" id="render" onchange="setNewRender()" >
 
 		</select>
 
-	<h4>Initial room</h4>
+	<h4>Initial room:</h4>
 		<select class="select-field-width" id="initial" onchange="setNewInitial()" >
 		
 		</select>
 
-	<h4>Name: <span id="currentName"></span></h4>
+	<h4>VirCA name: <span id="currentName"></span></h4>
 		<input class="input-field-width" id="name">
 		</input><button class="button-width btn-primary" onclick="setNewName()" >SET new NAME</button>
 
-	<h4>Color</h4>
+	<h4>VirCA color:</h4>
 		<select class="select-field-width" id="color" onchange="setNewColor()" >
 
 		</select>	
 
-	<h4>Display Mode</h4>
+	<h4>Display mode:</h4>
 		<select class="select-field-width" id="display" onclick="setNewDisplay()" >
 
 		</select>	
 
-	<h4>Screen Mode</h4>
+	<h4>Screen mode:</h4>
 		<select class="select-field-width" id="screen" onclick="setNewScreen()" >
 
 		</select>
 
 	<h4 class="font-bold">FSAA: <span id="currentFSAA"></span></h4>
 		<form>
-			<input type="range" name="points" min="0" max="3" id="fsaa" list="tickmarks" onclick="setNewFSAA()" >
+			<input type="range" name="points" min="0" max="3" id="fsaa" value="0" list="tickmarks" onclick="setNewFSAA()" >
 				<datalist id="tickmarks">
 					<option>0</option>
 					<option>1</option>
@@ -73,9 +73,9 @@
 		<button class="button-width btn-primary" onclick="setNewIP()" >Update IP (local/VPN)</button>
 
 	<script>
-		
+				
 		var fs = require('fs');
-		var	path = require('path');
+		var	path = require('path');		
 		var versions = getDirectories("c:/Users/Public/Documents/VirCA");
 		var selectVersion = document.getElementById('version');
 		
@@ -83,7 +83,7 @@
 			var option = versions[e];
 			selectVersion.options.add( new Option(option, option) );
 		}
-		
+				
 		function getDirectories(srcpath) {
 		  return fs.readdirSync(srcpath).filter(function(file) {
 			return fs.statSync(path.join(srcpath, file)).isDirectory();
@@ -98,7 +98,7 @@
 		function getDataFromSelectedVirCAVersion() {
 			var selectedVirCAVersion = document.getElementById("version").value;
 			if (!selectedVirCAVersion) {
-				alert("NOT found valid VirCA version installation on your machine. Please install VirCA version 0.2.1180 or above.");
+				document.getElementById("notVersion").innerHTML = "Missing or invalid VirCA version";
 				return console.log("NOT found valid VirCA version!");
 			}
 			var roomlist = document.getElementById('initial');

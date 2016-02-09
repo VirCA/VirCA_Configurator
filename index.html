@@ -20,48 +20,45 @@
 <body>
 
 	<h4>VirCA version</h4>
-		<select name="virca-version" class="select-field-width" id="version" onchange="getDataFromSelectedVirCAVersion()" >
+		<select class="select-field-width" id="version" onchange="getDataFromSelectedVirCAVersion()" >
 		
 		</select>
 
 	<h4>Master or Slave VirCA</h4>
-		<select name="virca-ms" class="select-field-width" id="master-slave" onchange="setNewMs()" >
-			<option value="master">Master</option>
-			<option value="slave">Slave</option>
+		<select class="select-field-width" id="ms" onchange="setNewMs()" >
+
 		</select>
 
 	<h4>DirectX or OpenGL Render</h4>
-		<select name="virca-render" class="select-field-width" id="render" onchange="setNewRender()" >
-			<option value="directx">DirectX</option>
-			<option value="opengl">OpenGL</option>
+		<select class="select-field-width" id="render" onchange="setNewRender()" >
+
 		</select>
 
 	<h4>Initial room</h4>
-		<select name="virca-initial" class="select-field-width" id="initial" onchange="setNewInitial()" >
+		<select class="select-field-width" id="initial" onchange="setNewInitial()" >
 		
 		</select>
 
-	<h4>Name</h4>
-		<p id="currentName"></p>
-		<input name="virca-name" class="input-field-width" id="name">
+	<h4>Name: <span id="currentName"></span></h4>
+		<input class="input-field-width" id="name">
 		</input><button class="button-width btn-primary" onclick="setNewName()" >SET new NAME</button>
 
 	<h4>Color</h4>
-		<select name="virca-color" class="select-field-width" id="color" onchange="setNewColor()" >
+		<select class="select-field-width" id="color" onchange="setNewColor()" >
 
 		</select>	
 
 	<h4>Display Mode</h4>
-		<select name="virca-display" class="select-field-width" id="display" onclick="setNewDisplay()" >
+		<select class="select-field-width" id="display" onclick="setNewDisplay()" >
 
 		</select>	
 
 	<h4>Screen Mode</h4>
-		<select name="virca-screen" class="select-field-width" id="screen" onclick="setNewScreen()" >
+		<select class="select-field-width" id="screen" onclick="setNewScreen()" >
 
 		</select>
 
-	<h4>FSAA</h4>
+	<h4 class="font-bold">FSAA: <span id="currentFSAA"></span></h4>
 		<form>
 			<input type="range" name="points" min="0" max="3" id="fsaa" list="tickmarks" onclick="setNewFSAA()" >
 				<datalist id="tickmarks">
@@ -72,10 +69,9 @@
 				</datalist>
 		</form>
 		
-	<h4>IP address</h4>
-		<p class="select-field-width" id="ip"></p><button class="button-width btn-primary" onclick="setNewIP()" >Update IP (local/VPN)</button>
+	<h4>IP address: <span id="ip"></span></h4>
+		<button class="button-width btn-primary" onclick="setNewIP()" >Update IP (local/VPN)</button>
 
-	
 	<script>
 		
 		var fs = require('fs');
@@ -95,9 +91,16 @@
 		}	
 		
 		getDataFromSelectedVirCAVersion();
+
+		
+		//Read the content of the rtc.conf file
 		
 		function getDataFromSelectedVirCAVersion() {
 			var selectedVirCAVersion = document.getElementById("version").value;
+			if (!selectedVirCAVersion) {
+				alert("NOT found valid VirCA version installation on your machine. Please install VirCA version 0.2.1180 or above.");
+				return console.log("NOT found valid VirCA version!");
+			}
 			var roomlist = document.getElementById('initial');
 			roomlist.options.length = 0;
 			
@@ -106,36 +109,56 @@
 					return console.log(err);
 				}
 
-				var masterSlaveString = new RegExp ("VirCA.IsMaster: true");
+				
+				//Get the VirCA status (Master or Slave)
+				
+				var msList = document.getElementById('ms');
+				msList.options.length = 0;
+				var ms = ["Master", "Slave"];
+				var master = new RegExp ("VirCA.IsMaster: true");
+				var slave = new RegExp ("VirCA.IsMaster: false");				
 
-				var masterSlave = masterSlaveString.test(dataRtc);
+				for(var h = 0, p = ms.length; h < p; h++){
+					var option = ms[h];
+					msList.options.add( new Option(option, option) );
+				}				
+				
+				if (master.test(dataRtc)) {
+					msList.options.selectedIndex = "0";
+				} else if (slave.test(dataRtc)) {
+					msList.options.selectedIndex = "1";
+				}
+				
+				
+				//Get the type of the Rendering Engine
+				
+				var renderList = document.getElementById('render');
+				renderList.options.length = 0;
+				var render = ["DirectX", "OpenGL"];
+				var dx = new RegExp ("VirCA.Render: DX9");
+				var gl = new RegExp ("VirCA.Render: GL");
+				
+				for(var f = 0, g = render.length; f < g; f++){
+					var option = render[f];
+					renderList.options.add( new Option(option, option) );
+				}				
 
-				if ( masterSlave == true ) {
-					document.getElementById("master-slave").selectedIndex = "0";
-				} else {
-					document.getElementById("master-slave").selectedIndex = "1";
+				if (dx.test(dataRtc)) {
+					renderList.options.selectedIndex = "0";
+				} else if (gl.test(dataRtc)) {
+					renderList.options.selectedIndex = "1";
 				}
 
-				var directx = new RegExp ("VirCA.Render: DX9");
-
-				var render = directx.test(dataRtc);
-
-				if ( render == true ) {
-				document.getElementById("render").selectedIndex = "0";
-				} else {
-				document.getElementById("render").selectedIndex = "1";
-				}
+				
+				//Get the initial room name
 				
 				var recursive = require('recursive-readdir');
 				var roomExtension = /\.room/i;
-				var slashed = 'an';
 				var files = [];
 				var dotRoomFinds = [];				
 				var rooms = [];
 				var roomsPath = 'c:\\Users\\Public\\Documents\\VirCA\\'+selectedVirCAVersion+'\\Media\\rooms\\';
 				recursive(roomsPath, function (err, files) {
-					// Files is an array of filename 
-					//console.log(files);
 
 					for (var i = 0, j = files.length; i < j; i++) {
 						if (files[i].match(roomExtension)) {
@@ -144,14 +167,9 @@
 						
 					}
 					rooms = dotRoomFinds.map(path.dirname);
-					//console.log(rooms);
 					var initialroomTemp1 = /VirCA.InitRoom: .*/g;
 					var initialroomTemp2 = dataRtc.match(initialroomTemp1);
 					var initialroom = initialroomTemp2.toString().substring(16);
-					
-					//document.getElementById("demo").innerHTML = initialroom;
-
-					//document.getElementById("demo3").innerHTML = rooms;
 					
 					for(var x = 0, y = rooms.length; x < y; x++){
 						var option = rooms[x];
@@ -165,10 +183,16 @@
 					roomlist.selected = initialroom;
 				});
 				
+				
+				//Get the VirCA remote name
+				
 				var remoteNameTemp1 = /VirCA.RemoteName: .*/g;
 				var remoteNameTemp2 = dataRtc.match(remoteNameTemp1);
 				var remoteName = remoteNameTemp2.toString().substring(18);
 				document.getElementById("currentName").innerHTML = remoteName;
+				
+				
+				//Get the VirCA remote color
 				
 				var colorlist = document.getElementById('color');
 				colorlist.options.length = 0;
@@ -188,7 +212,6 @@
 				var colorB3 = new RegExp ("VirCA.RemoteColor.B: 0.1");
 				var colorB4 = new RegExp ("VirCA.RemoteColor.B: 0.5");
 
-				
 				for(var c = 0, r = colors.length; c < r; c++){
 					var option = colors[c];
 					colorlist.options.add( new Option(option, option) );
@@ -211,6 +234,8 @@
 				}		
 				
 				
+				//Get the VirCA name server IP address
+				
 				var ipTemp1 = /corba.endpoint: .*/g;
 				var ipTemp2 = dataRtc.match(ipTemp1);
 				var ip = ipTemp2.toString().substring(16).replace(/.$/,'');
@@ -218,11 +243,17 @@
 				
 			});
 
+			
+			//Read the content of the DisplayConfig.xml
+			
 			fs.readFile('C:/Users/Public/Documents/VirCA/'+selectedVirCAVersion+'/DisplayConfig.xml', 'utf8', function (err,dataDisplay) {
 				if (err) {
 					return console.log(err);
 				}
 
+				
+				//Get the actual Display configuration
+				
 				var displayList = document.getElementById('display');
 				displayList.options.length = 0;
 				var displays = ["Oculus", "Simple", "Split for 3D TVs", "CAVE"];
@@ -246,6 +277,9 @@
 					displayList.options.selectedIndex = "3";
 				}
 				
+				
+				//Get the actual window mode
+				
 				var screenList = document.getElementById('screen');
 				screenList.options.length = 0;
 				var screens = ["Full Screen", "Window"];
@@ -263,6 +297,9 @@
 					screenList.options.selectedIndex = "1";
 				}
 				
+				
+				//Get the actual FSAA value
+				
 				var fsaaList = document.getElementById("fsaa");
 				var fsaa0 = new RegExp ('FSAA="0"');
 				var fsaa2 = new RegExp ('FSAA="2"');
@@ -271,22 +308,28 @@
 				
 				if (fsaa0.test(dataDisplay)) {
 					fsaaList.value = "0";
+					document.getElementById("currentFSAA").innerHTML = "0";
 				} else if (fsaa2.test(dataDisplay)) {
 					fsaaList.value = "1";
+					document.getElementById("currentFSAA").innerHTML = "2";
 				} else if (fsaa4.test(dataDisplay)) {
 					fsaaList.value = "2";
+					document.getElementById("currentFSAA").innerHTML = "4";
 				} else if (fsaa8.test(dataDisplay)) {
 					fsaaList.value = "3";
+					document.getElementById("currentFSAA").innerHTML = "8";
 				}
 				
 			});
-			
 		}
+		
+		
+		//Set new VirCA master or slave status
 		
 		function setNewMs() {
 			var newMs = [];
 			var selectedVirCAVersion = document.getElementById("version").value;
-			newMs = document.getElementById("master-slave").value;
+			newMs = document.getElementById("ms").value;
 			//console.log(newMs);
 			
 			fs.readFile('C:/Users/Public/Documents/VirCA/'+selectedVirCAVersion+'/rtc.conf', 'utf8', function (err,dataRtc) {
@@ -294,9 +337,9 @@
 					return console.log(err);
 				}
 				
-				if (newMs == "master") {
+				if (newMs === "Master") {
 					var update = dataRtc.replace(/VirCA.IsMaster: .*/g, "VirCA.IsMaster: true");
-				} else {
+				} else if (newMs === "Slave") {
 					var update = dataRtc.replace(/VirCA.IsMaster: .*/g, "VirCA.IsMaster: false");
 				}
 
@@ -305,6 +348,9 @@
 				});
 			});
 		}
+		
+		
+		//Set the VirCA Rendering Engine
 		
 		function setNewRender() {
 			var newRender = [];
@@ -317,9 +363,9 @@
 					return console.log(err);
 				}
 				
-				if (newRender == "directx") {
+				if (newRender === "DirectX") {
 					var update = dataRtc.replace(/VirCA.Render: .*/g, "VirCA.Render: DX9");
-				} else {
+				} else if (newRender === "OpenGL") {
 					var update = dataRtc.replace(/VirCA.Render: .*/g, "VirCA.Render: GL");
 				}
 
@@ -329,6 +375,9 @@
 			});
 		}
 
+		
+		//Set new initial room
+		
 		function setNewInitial() {
 			var newInitial = [];
 			var selectedVirCAVersion = document.getElementById("version").value;
@@ -347,6 +396,9 @@
 				});
 			});
 		}
+		
+		
+		//Set new remote name
 		
 		function setNewName() {
 			var newName = [];
@@ -376,6 +428,9 @@
 			});
 		}
 
+		
+		//Set new remote color
+		
 		function setNewColor() {
 			var newColor = [];
 			var selectedVirCAVersion = document.getElementById("version").value;
@@ -435,68 +490,8 @@
 			});				
 		}
 		
-		function setNewIP() {
-			var newIP = [];
-			var selectedVirCAVersion = document.getElementById("version").value;
-			var os = require('os');
-			var interfaces = os.networkInterfaces();
-			var addresses = [];
-			for (var k in interfaces) {
-				for (var k2 in interfaces[k]) {
-					var address = interfaces[k][k2];
-					if (address.family === 'IPv4' && !address.internal) {
-						addresses.push(address.address);
-					}
-				}
-			}
-			
-			newIP = addresses[0];
-			console.log(newIP);
-
-			fs.readFile('C:/Users/Public/Documents/VirCA/'+selectedVirCAVersion+'/rtc.conf', 'utf8', function (err,dataRtc) {
-				if (err) {
-					return console.log(err);
-				}
-				
-				if (newIP.match("172.29.")) {
-					//console.log("VPN IP");
-					var update = dataRtc.replace(/corba.nameservers: .*/g, "corba.nameservers: 172.29.1.1");
-					update = update.replace(/ice_host.IceServerPort0: .*/g, 'ice_host.IceServerPort0: '+newIP);
-					update = update.replace(/ice_host.IceServerPort1: .*/g, 'ice_host.IceServerPort1: '+newIP);
-					update = update.replace(/ice_host.IceServerPort2: .*/g, 'ice_host.IceServerPort2: '+newIP);
-					update = update.replace(/ice_host.IceServerPort3: .*/g, 'ice_host.IceServerPort3: '+newIP);
-					update = update.replace(/ice_host.IceServerPort4: .*/g, 'ice_host.IceServerPort4: '+newIP);
-					update = update.replace(/ice_host.Master: .*/g, 'ice_host.Master: '+newIP);
-					update = update.replace(/ice_host.Slave0: .*/g, 'ice_host.Slave0: '+newIP);
-					update = update.replace(/ice_host.Slave1: .*/g, 'ice_host.Slave1: '+newIP);
-					update = update.replace(/ice_host.Slave2: .*/g, 'ice_host.Slave2: '+newIP);
-					update = update.replace(/ice_host.Slave3: .*/g, 'ice_host.Slave3: '+newIP);
-					update = update.replace(/corba.endpoint:  .*/g, 'corba.endpoint:  '+newIP+':');
-					update = update.replace(/corba.endpoints: .*/g, 'corba.endpoints: '+newIP+':');				
-				} else {
-					//console.log("Local IP");
-					var update = dataRtc.replace(/corba.nameservers: .*/g, "corba.nameservers: 127.0.0.1");
-					update = update.replace(/ice_host.IceServerPort0: .*/g, "ice_host.IceServerPort0: 127.0.0.1");
-					update = update.replace(/ice_host.IceServerPort1: .*/g, "ice_host.IceServerPort1: 127.0.0.1");
-					update = update.replace(/ice_host.IceServerPort2: .*/g, "ice_host.IceServerPort2: 127.0.0.1");
-					update = update.replace(/ice_host.IceServerPort3: .*/g, "ice_host.IceServerPort3: 127.0.0.1");
-					update = update.replace(/ice_host.IceServerPort4: .*/g, "ice_host.IceServerPort4: 127.0.0.1");
-					update = update.replace(/ice_host.Master: .*/g, "ice_host.Master: 127.0.0.1");
-					update = update.replace(/ice_host.Slave0: .*/g, "ice_host.Slave0: 127.0.0.1");
-					update = update.replace(/ice_host.Slave1: .*/g, "ice_host.Slave1: 127.0.0.1");
-					update = update.replace(/ice_host.Slave2: .*/g, "ice_host.Slave2: 127.0.0.1");
-					update = update.replace(/ice_host.Slave3: .*/g, "ice_host.Slave3: 127.0.0.1");
-					update = update.replace(/corba.endpoint:  .*/g, "corba.endpoint:  127.0.0.1:");
-					update = update.replace(/corba.endpoints: .*/g, "corba.endpoints: 127.0.0.1:");
-				}
-				
-				fs.writeFile('C:/Users/Public/Documents/VirCA/'+selectedVirCAVersion+'/rtc.conf', update, 'utf8', function (err) {
-					if (err) return console.log(err);
-				});
-				
-			});						
-			
-		}
+		
+		//Set new display configuration
 		
 		function setNewDisplay() {
 			var newDisplay = [];
@@ -529,8 +524,10 @@
 				});
 				
 			});	
-			
 		}
+		
+		
+		//Set new window mode
 		
 		function setNewScreen() {
 			var newScreen = [];
@@ -557,8 +554,10 @@
 				});
 				
 			});				
-		
 		}
+		
+		
+		//Set new FSAA value
 		
 		function setNewFSAA() {
 			var newFSAA = [];
@@ -578,12 +577,16 @@
 			
 				if (newFSAA == "0") {
 					var update = dataDisplay.replace(/FSAA=\"\d\"/g, fsaa0);
+					document.getElementById("currentFSAA").innerHTML = "0";
 				} else if (newFSAA == "1") {
 					var update = dataDisplay.replace(/FSAA=\"\d\"/g, fsaa2);
+					document.getElementById("currentFSAA").innerHTML = "2";
 				} else if (newFSAA == "2") {
 					var update = dataDisplay.replace(/FSAA=\"\d\"/g, fsaa4);
+					document.getElementById("currentFSAA").innerHTML = "4";
 				} else if (newFSAA == "3") {
 					var update = dataDisplay.replace(/FSAA=\"\d\"/g, fsaa8);
+					document.getElementById("currentFSAA").innerHTML = "8";
 				}
 				
 				fs.writeFile('C:/Users/Public/Documents/VirCA/'+selectedVirCAVersion+'/DisplayConfig.xml', update, 'utf8', function (err) {
@@ -591,7 +594,73 @@
 				});
 				
 			});	
+		}
+
+
+		//Update available IP status
+		
+		function setNewIP() {
+			var newIP = [];
+			var selectedVirCAVersion = document.getElementById("version").value;
+			var os = require('os');
+			var interfaces = os.networkInterfaces();
+			var addresses = [];
+			for (var k in interfaces) {
+				for (var k2 in interfaces[k]) {
+					var address = interfaces[k][k2];
+					if (address.family === 'IPv4' && !address.internal) {
+						addresses.push(address.address);
+					}
+				}
+			}
 			
+			newIP = addresses[0];
+			//console.log(newIP);
+
+			fs.readFile('C:/Users/Public/Documents/VirCA/'+selectedVirCAVersion+'/rtc.conf', 'utf8', function (err,dataRtc) {
+				if (err) {
+					return console.log(err);
+				}
+				
+				if (newIP.match("172.29.")) {
+					//console.log("VPN IP");
+					var update = dataRtc.replace(/corba.nameservers: .*/g, "corba.nameservers: 172.29.1.1");
+					update = update.replace(/ice_host.IceServerPort0: .*/g, 'ice_host.IceServerPort0: '+newIP);
+					update = update.replace(/ice_host.IceServerPort1: .*/g, 'ice_host.IceServerPort1: '+newIP);
+					update = update.replace(/ice_host.IceServerPort2: .*/g, 'ice_host.IceServerPort2: '+newIP);
+					update = update.replace(/ice_host.IceServerPort3: .*/g, 'ice_host.IceServerPort3: '+newIP);
+					update = update.replace(/ice_host.IceServerPort4: .*/g, 'ice_host.IceServerPort4: '+newIP);
+					update = update.replace(/ice_host.Master: .*/g, 'ice_host.Master: '+newIP);
+					update = update.replace(/ice_host.Slave0: .*/g, 'ice_host.Slave0: '+newIP);
+					update = update.replace(/ice_host.Slave1: .*/g, 'ice_host.Slave1: '+newIP);
+					update = update.replace(/ice_host.Slave2: .*/g, 'ice_host.Slave2: '+newIP);
+					update = update.replace(/ice_host.Slave3: .*/g, 'ice_host.Slave3: '+newIP);
+					update = update.replace(/corba.endpoint:  .*/g, 'corba.endpoint:  '+newIP+':');
+					update = update.replace(/corba.endpoints: .*/g, 'corba.endpoints: '+newIP+':');
+					document.getElementById("ip").innerHTML = newIP;
+				} else {
+					//console.log("Local IP");
+					var update = dataRtc.replace(/corba.nameservers: .*/g, "corba.nameservers: 127.0.0.1");
+					update = update.replace(/ice_host.IceServerPort0: .*/g, "ice_host.IceServerPort0: 127.0.0.1");
+					update = update.replace(/ice_host.IceServerPort1: .*/g, "ice_host.IceServerPort1: 127.0.0.1");
+					update = update.replace(/ice_host.IceServerPort2: .*/g, "ice_host.IceServerPort2: 127.0.0.1");
+					update = update.replace(/ice_host.IceServerPort3: .*/g, "ice_host.IceServerPort3: 127.0.0.1");
+					update = update.replace(/ice_host.IceServerPort4: .*/g, "ice_host.IceServerPort4: 127.0.0.1");
+					update = update.replace(/ice_host.Master: .*/g, "ice_host.Master: 127.0.0.1");
+					update = update.replace(/ice_host.Slave0: .*/g, "ice_host.Slave0: 127.0.0.1");
+					update = update.replace(/ice_host.Slave1: .*/g, "ice_host.Slave1: 127.0.0.1");
+					update = update.replace(/ice_host.Slave2: .*/g, "ice_host.Slave2: 127.0.0.1");
+					update = update.replace(/ice_host.Slave3: .*/g, "ice_host.Slave3: 127.0.0.1");
+					update = update.replace(/corba.endpoint:  .*/g, "corba.endpoint:  127.0.0.1:");
+					update = update.replace(/corba.endpoints: .*/g, "corba.endpoints: 127.0.0.1:");
+					document.getElementById("ip").innerHTML = "127.0.0.1";
+				}
+				
+				fs.writeFile('C:/Users/Public/Documents/VirCA/'+selectedVirCAVersion+'/rtc.conf', update, 'utf8', function (err) {
+					if (err) return console.log(err);
+				});
+				
+			});		
 		}
 		
 	</script>

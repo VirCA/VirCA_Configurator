@@ -19,46 +19,46 @@
 
 <body>
 
-	<h4>VirCA version: <span id="notVersion"></span></h4>
+	<h5>VirCA version: <span id="notVersion"></span></h5>
 		<select class="select-field-width" id="version" onchange="getDataFromSelectedVirCAVersion()" >
 		
 		</select>
 
-	<h4>VirCA is:</h4>
+	<h5>VirCA is:</h5>
 		<select class="select-field-width" id="ms" onchange="setNewMs()" >
 
 		</select>
 
-	<h4>Rendering engine:</h4>
+	<h5>Rendering engine:</h5>
 		<select class="select-field-width" id="render" onchange="setNewRender()" >
 
 		</select>
 
-	<h4>Initial room:</h4>
+	<h5>Initial room:</h5>
 		<select class="select-field-width" id="initial" onchange="setNewInitial()" >
 		
 		</select>
 
-	<h4>VirCA name: <span id="currentName"></span></h4>
+	<h5>VirCA name: <span id="currentName"></span></h5>
 		<input class="input-field-width" id="name">
-		</input><button class="button-width btn-primary" onclick="setNewName()" >SET new NAME</button>
+		</input><button class="button-width-50 btn-primary" onclick="setNewName()" >SET new NAME</button>
 
-	<h4>VirCA color:</h4>
+	<h5>VirCA color:</h5>
 		<select class="select-field-width" id="color" onchange="setNewColor()" >
 
 		</select>	
 
-	<h4>Display mode:</h4>
+	<h5>Display mode:</h5>
 		<select class="select-field-width" id="display" onclick="setNewDisplay()" >
 
 		</select>	
 
-	<h4>Screen mode:</h4>
+	<h5>Screen mode:</h5>
 		<select class="select-field-width" id="screen" onclick="setNewScreen()" >
 
 		</select>
 
-	<h4 class="font-bold">FSAA: <span id="currentFSAA"></span></h4>
+	<h5 class="font-bold">FSAA: <span id="currentFSAA"></span></h5>
 		<form>
 			<input type="range" name="points" min="0" max="3" id="fsaa" value="0" list="tickmarks" onclick="setNewFSAA()" >
 				<datalist id="tickmarks">
@@ -69,9 +69,10 @@
 				</datalist>
 		</form>
 		
-	<h4>IP address: <span id="ip"></span></h4>
-		<button class="button-width btn-primary" onclick="setNewIP()" >Update IP (local/VPN)</button>
-
+	<h5>IP address: <span id="ip"></span></h5>
+		<button class="button-width-50 btn-primary" onclick="setNewIP()" >Update IP (local/VPN)</button><button class="button-width-50 btn-info" onclick="openLog()" >Open Log file</button>
+		<button class="button-width-100 btn-success" onclick="runVirCA()" >Start VirCA</button>
+		
 	<script>
 				
 		var fs = require('fs');
@@ -662,6 +663,44 @@
 				
 			});		
 		}
+		
+		
+		var execVirCA = require('child_process').execFile;
+
+		var runVirCA = function(){
+			var selectedVirCAVersion = document.getElementById("version").value;
+			var vircaPath = 'C:/Program Files (x86)/VirCA/'+selectedVirCAVersion;
+			console.log("VirCA start");
+			execVirCA(vircaPath+'/VirCA.exe', {cwd: vircaPath}, function(err, data) { 
+				console.log(err)
+				console.log(data.toString());
+				fs.writeFile('C:/Users/Public/Documents/VirCA/'+selectedVirCAVersion+'/VirCA.log', data, 'utf8', function (err) {
+					if (err) return console.log(err);
+				});				
+			});  
+		}
+		
+		
+		var execLog = require('child_process').exec;
+		
+		var openLog = function(){
+			var selectedVirCAVersion = document.getElementById("version").value;
+			var logPath = 'C:/Users/Public/Documents/VirCA/'+selectedVirCAVersion+'/VirCA.log';
+
+			fs.stat(logPath, function(err, stat) {
+				if(err == null) {
+					console.log("Open log file");
+					execLog('notepad.exe '+logPath, function(err) { 
+						console.log(err)
+					}); 
+				} else {
+					alert(selectedVirCAVersion+' log file does not exist yet...');
+					return console.log(err);
+				}
+			});
+			
+		}
+				
 		
 	</script>
 	

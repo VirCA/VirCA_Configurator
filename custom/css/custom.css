@@ -9,22 +9,26 @@ h4 {
 .select-field-width {
 	width: 100%;
 	color: green;
-	font-size: 15px;	
+	font-size: 13px;	
 }
 
 .input-field-width {
 	width: 100%;
 	color: green;
-	font-size: 15px;	
+	font-size: 13px;	
 }
 
-.button-width {
+.button-width-50 {
 	width: 50%;
+}
+
+.button-width-100 {
+	width: 100%;
 }
 
 span, option {
 	color: green;
-	font-size: 15px;
+	font-size: 13px;
 }
 
 #notVersion {

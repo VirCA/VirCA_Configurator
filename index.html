@@ -20,7 +20,7 @@
 <body>
 
 	<h5>VirCA version: <span id="notVersion"></span></h5>
-		<select class="select-field-width" id="version" onchange="getDataFromSelectedVirCAVersion()" >
+		<select class="select-field-width" id="version" onchange="validateVirCA()" >
 		
 		</select>
 
@@ -91,9 +91,34 @@
 		  });
 		}	
 		
-		getDataFromSelectedVirCAVersion();
-
+		validateVirCA();
 		
+		//Validate detected VirCA version by rtc.conf exist
+		
+		function validateVirCA() {
+			var selectedVirCAVersion = document.getElementById("version").value;
+			fs.stat('C:/Users/Public/Documents/VirCA/'+selectedVirCAVersion+'/rtc.conf', function(err, stat) {
+				if(err == null) {
+					document.getElementById("notVersion").innerHTML = "";
+					getDataFromSelectedVirCAVersion();
+				} else if(err.code == 'ENOENT') {
+					document.getElementById("notVersion").innerHTML = "rtc.conf is missed (VirCA is maybe uninstalled)";
+					document.getElementById('initial').innerHTML = "";
+					document.getElementById('ms').innerHTML = "";
+					document.getElementById('render').innerHTML = "";
+					document.getElementById("currentName").innerHTML = "";					
+					document.getElementById('color').innerHTML = "";
+					document.getElementById('display').innerHTML = "";
+					document.getElementById('screen').innerHTML = "";
+					document.getElementById('currentFSAA').innerHTML = "";
+					document.getElementById('ip').innerHTML = "";
+				} else {
+					document.getElementById("notVersion").innerHTML = "unknown error";
+					console.log('Some other error: ', err.code);
+				}
+			});			
+		}
+
 		//Read the content of the rtc.conf file
 		
 		function getDataFromSelectedVirCAVersion() {
@@ -107,6 +132,7 @@
 			
 			fs.readFile('C:/Users/Public/Documents/VirCA/'+selectedVirCAVersion+'/rtc.conf', 'utf8', function (err,dataRtc) {
 				if (err) {
+					document.getElementById("notVersion").innerHTML = "rtc.conf file is missed";
 					return console.log(err);
 				}
 

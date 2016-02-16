@@ -41,7 +41,7 @@
 
 	<h5>VirCA name: <span id="currentName"></span></h5>
 		<input class="input-field-width" id="name">
-		</input><button class="button-width-50 btn-primary" onclick="setNewName()" >SET new NAME</button>
+		</input><button class="button-width-50_left btn-primary" onclick="setNewName()" >SET new NAME</button>
 
 	<h5>VirCA color:</h5>
 		<select class="select-field-width" id="color" onchange="setNewColor()" >
@@ -70,7 +70,8 @@
 		</form>
 		
 	<h5>IP address: <span id="ip"></span></h5>
-		<button class="button-width-50 btn-primary" onclick="setNewIP()" >Update IP (local/VPN)</button><button class="button-width-50 btn-info" onclick="openLog()" >Open Log file</button>
+		<button class="button-width-50_left btn-primary" onclick="setNewIP()" >Update IP (local/VPN)</button>
+		<button class="button-width-50_right btn-info" onclick="openLog()" >Open Log file</button>
 		<button class="button-width-100 btn-success" onclick="runVirCA()" >Start VirCA</button>
 		
 	<script>
@@ -102,7 +103,7 @@
 					document.getElementById("notVersion").innerHTML = "";
 					getDataFromSelectedVirCAVersion();
 				} else if(err.code == 'ENOENT') {
-					document.getElementById("notVersion").innerHTML = "rtc.conf is missed (VirCA is maybe uninstalled)";
+					document.getElementById("notVersion").innerHTML = "rtc.conf is missing";
 					document.getElementById('initial').innerHTML = "";
 					document.getElementById('ms').innerHTML = "";
 					document.getElementById('render').innerHTML = "";
@@ -123,27 +124,22 @@
 		
 		function getDataFromSelectedVirCAVersion() {
 			var selectedVirCAVersion = document.getElementById("version").value;
-			if (!selectedVirCAVersion) {
-				document.getElementById("notVersion").innerHTML = "Missing or invalid VirCA version";
-				return console.log("NOT found valid VirCA version!");
-			}
 			var roomlist = document.getElementById('initial');
 			roomlist.options.length = 0;
 			
 			fs.readFile('C:/Users/Public/Documents/VirCA/'+selectedVirCAVersion+'/rtc.conf', 'utf8', function (err,dataRtc) {
 				if (err) {
-					document.getElementById("notVersion").innerHTML = "rtc.conf file is missed";
+					document.getElementById("notVersion").innerHTML = "rtc.conf file is missing";
 					return console.log(err);
 				}
-
 				
 				//Get the VirCA status (Master or Slave)
 				
 				var msList = document.getElementById('ms');
 				msList.options.length = 0;
 				var ms = ["Master", "Slave"];
-				var master = new RegExp ("VirCA.IsMaster: true");
-				var slave = new RegExp ("VirCA.IsMaster: false");				
+				var master = /(VirCA.IsMaster: true)/;
+				var slave = /(VirCA.IsMaster: false)/;				
 
 				for(var h = 0, p = ms.length; h < p; h++){
 					var option = ms[h];
@@ -162,8 +158,8 @@
 				var renderList = document.getElementById('render');
 				renderList.options.length = 0;
 				var render = ["DirectX", "OpenGL"];
-				var dx = new RegExp ("VirCA.Render: DX9");
-				var gl = new RegExp ("VirCA.Render: GL");
+				var dx = /(VirCA.Render: DX9)/;
+				var gl = /(VirCA.Render: GL)/;
 				
 				for(var f = 0, g = render.length; f < g; f++){
 					var option = render[f];
@@ -185,6 +181,7 @@
 				var dotRoomFinds = [];				
 				var rooms = [];
 				var roomsPath = 'c:\\Users\\Public\\Documents\\VirCA\\'+selectedVirCAVersion+'\\Media\\rooms\\';
+				
 				recursive(roomsPath, function (err, files) {
 
 					for (var i = 0, j = files.length; i < j; i++) {
@@ -208,6 +205,7 @@
 					}
 					
 					roomlist.selected = initialroom;
+					
 				});
 				
 				
@@ -224,20 +222,20 @@
 				var colorlist = document.getElementById('color');
 				colorlist.options.length = 0;
 				var colors = ["Red", "Green", "Blue", "Yellow", "Purple", "Orange"];
-				var colorR1 = new RegExp ("VirCA.RemoteColor.R: 0");
-				var colorR2 = new RegExp ("VirCA.RemoteColor.R: 0.1");
-				var colorR3 = new RegExp ("VirCA.RemoteColor.R: 0.4");
-				var colorR4 = new RegExp ("VirCA.RemoteColor.R: 0.9");
-				var colorR5 = new RegExp ("VirCA.RemoteColor.R: 0.95");
-				var colorG1 = new RegExp ("VirCA.RemoteColor.G: 0");
-				var colorG2 = new RegExp ("VirCA.RemoteColor.G: 0.05");
-				var colorG3 = new RegExp ("VirCA.RemoteColor.G: 0.2");
-				var colorG4 = new RegExp ("VirCA.RemoteColor.G: 0.5");
-				var colorG5 = new RegExp ("VirCA.RemoteColor.G: 0.7");
-				var colorB1 = new RegExp ("VirCA.RemoteColor.B: 0");
-				var colorB2 = new RegExp ("VirCA.RemoteColor.B: 0.05");
-				var colorB3 = new RegExp ("VirCA.RemoteColor.B: 0.1");
-				var colorB4 = new RegExp ("VirCA.RemoteColor.B: 0.5");
+				var colorR1 = /(VirCA.RemoteColor.R: 0)/;
+				var colorR2 = /(VirCA.RemoteColor.R: 0.1)/;
+				var colorR3 = /(VirCA.RemoteColor.R: 0.4)/;
+				var colorR4 = /(VirCA.RemoteColor.R: 0.9)/;
+				var colorR5 = /(VirCA.RemoteColor.R: 0.95)/;
+				var colorG1 = /(VirCA.RemoteColor.G: 0)/;
+				var colorG2 = /(VirCA.RemoteColor.G: 0.05)/;
+				var colorG3 = /(VirCA.RemoteColor.G: 0.2)/;
+				var colorG4 = /(VirCA.RemoteColor.G: 0.5)/;
+				var colorG5 = /(VirCA.RemoteColor.G: 0.7)/;
+				var colorB1 = /(VirCA.RemoteColor.B: 0)/;
+				var colorB2 = /(VirCA.RemoteColor.B: 0.05)/;
+				var colorB3 = /(VirCA.RemoteColor.B: 0.1)/;
+				var colorB4 = /(VirCA.RemoteColor.B: 0.5)/;
 
 				for(var c = 0, r = colors.length; c < r; c++){
 					var option = colors[c];
@@ -284,10 +282,10 @@
 				var displayList = document.getElementById('display');
 				displayList.options.length = 0;
 				var displays = ["Oculus", "Simple", "Split for 3D TVs", "CAVE"];
-				var oculusDisplay = new RegExp ('<DisplayConfigSet activeDisplay="Hmd" activeTracker="OculusTracker">');
-				var simpleDisplay = new RegExp ('<DisplayConfigSet activeDisplay="SimpleDisplay" activeTracker="">');
-				var splitDisplay = new RegExp ('<DisplayConfigSet activeDisplay="SplitScreenDisplay" activeTracker="">');
-				var caveDisplay = new RegExp ('<DisplayConfigSet activeDisplay="CaveDisplay" activeTracker="FlockOfBirds">');
+				var oculusDisplay = /(<DisplayConfigSet activeDisplay="Hmd" activeTracker="OculusTracker">)/;
+				var simpleDisplay = /(<DisplayConfigSet activeDisplay="SimpleDisplay" activeTracker="">)/;
+				var splitDisplay = /(<DisplayConfigSet activeDisplay="SplitScreenDisplay" activeTracker="">)/;
+				var caveDisplay = /(<DisplayConfigSet activeDisplay="CaveDisplay" activeTracker="FlockOfBirds">)/;
 
 				for(var d = 0, v = displays.length; d < v; d++){
 					var option = displays[d];
@@ -310,8 +308,8 @@
 				var screenList = document.getElementById('screen');
 				screenList.options.length = 0;
 				var screens = ["Full Screen", "Window"];
-				var fullScreen = new RegExp ('fullScreen="Yes"');
-				var windowScreen = new RegExp ('fullScreen="No"');
+				var fullScreen = /(fullScreen="Yes")/;
+				var windowScreen = /(fullScreen="No")/;
 
 				for(var b = 0, k = screens.length; b < k; b++){
 					var option = screens[b];
@@ -328,10 +326,10 @@
 				//Get the actual FSAA value
 				
 				var fsaaList = document.getElementById("fsaa");
-				var fsaa0 = new RegExp ('FSAA="0"');
-				var fsaa2 = new RegExp ('FSAA="2"');
-				var fsaa4 = new RegExp ('FSAA="4"');
-				var fsaa8 = new RegExp ('FSAA="8"');
+				var fsaa0 = /(FSAA="0")/;
+				var fsaa2 = /(FSAA="2")/;
+				var fsaa4 = /(FSAA="4")/;
+				var fsaa8 = /(FSAA="8")/;
 				
 				if (fsaa0.test(dataDisplay)) {
 					fsaaList.value = "0";
@@ -484,27 +482,27 @@
 					return console.log(err);
 				}
 			
-				if (newColor == "Red") {
+				if (newColor === "Red") {
 					var update = dataRtc.replace(/VirCA.RemoteColor.R: .*/g, colorR5);
 					update = update.replace(/VirCA.RemoteColor.G: .*/g, colorG2);
 					update = update.replace(/VirCA.RemoteColor.B: .*/g, colorB2);
-				} else if (newColor == "Green") {
+				} else if (newColor === "Green") {
 					var update = dataRtc.replace(/VirCA.RemoteColor.R: .*/g, colorR2);
 					update = update.replace(/VirCA.RemoteColor.G: .*/g, colorG4);
 					update = update.replace(/VirCA.RemoteColor.B: .*/g, colorB3);
-				} else if (newColor == "Blue") {
+				} else if (newColor === "Blue") {
 					var update = dataRtc.replace(/VirCA.RemoteColor.R: .*/g, colorR1);
 					update = update.replace(/VirCA.RemoteColor.G: .*/g, colorG3);
 					update = update.replace(/VirCA.RemoteColor.B: .*/g, colorB4);
-				} else if (newColor == "Yellow") {
+				} else if (newColor === "Yellow") {
 					var update = dataRtc.replace(/VirCA.RemoteColor.R: .*/g, colorR4);
 					update = update.replace(/VirCA.RemoteColor.G: .*/g, colorG5);
 					update = update.replace(/VirCA.RemoteColor.B: .*/g, colorB1);
-				} else if (newColor == "Purple") {
+				} else if (newColor === "Purple") {
 					var update = dataRtc.replace(/VirCA.RemoteColor.R: .*/g, colorR3);
 					update = update.replace(/VirCA.RemoteColor.G: .*/g, colorG1);
 					update = update.replace(/VirCA.RemoteColor.B: .*/g, colorB4);
-				} else if (newColor == "Orange") {
+				} else if (newColor === "Orange") {
 					var update = dataRtc.replace(/VirCA.RemoteColor.R: .*/g, colorR4);
 					update = update.replace(/VirCA.RemoteColor.G: .*/g, colorG3);
 					update = update.replace(/VirCA.RemoteColor.B: .*/g, colorB1);
@@ -536,13 +534,13 @@
 					return console.log(err);
 				}
 			
-				if (newDisplay == "Oculus") {
+				if (newDisplay === "Oculus") {
 					var update = dataDisplay.replace(/<DisplayConfigSet activeDisplay=.*/g, oculusDisplay);
-				} else if (newDisplay == "Simple") {
+				} else if (newDisplay === "Simple") {
 					var update = dataDisplay.replace(/<DisplayConfigSet activeDisplay=.*/g, simpleDisplay);
-				} else if (newDisplay == "Split for 3D TVs") {
+				} else if (newDisplay === "Split for 3D TVs") {
 					var update = dataDisplay.replace(/<DisplayConfigSet activeDisplay=.*/g, splitDisplay);
-				} else if (newDisplay == "CAVE") {
+				} else if (newDisplay === "CAVE") {
 					var update = dataDisplay.replace(/<DisplayConfigSet activeDisplay=.*/g, caveDisplay);
 				}
 				
@@ -570,9 +568,9 @@
 					return console.log(err);
 				}
 			
-				if (newScreen == "Full Screen") {
+				if (newScreen === "Full Screen") {
 					var update = dataDisplay.replace(/fullScreen=\"\D\D\"/g, 'fullScreen="Yes"');
-				} else if (newScreen == "Window") {
+				} else if (newScreen === "Window") {
 					var update = dataDisplay.replace(/fullScreen=\"\D\D\D\"/g, 'fullScreen="No"');
 				}
 				
@@ -602,16 +600,16 @@
 					return console.log(err);
 				}
 			
-				if (newFSAA == "0") {
+				if (newFSAA === "0") {
 					var update = dataDisplay.replace(/FSAA=\"\d\"/g, fsaa0);
 					document.getElementById("currentFSAA").innerHTML = "0";
-				} else if (newFSAA == "1") {
+				} else if (newFSAA === "1") {
 					var update = dataDisplay.replace(/FSAA=\"\d\"/g, fsaa2);
 					document.getElementById("currentFSAA").innerHTML = "2";
-				} else if (newFSAA == "2") {
+				} else if (newFSAA === "2") {
 					var update = dataDisplay.replace(/FSAA=\"\d\"/g, fsaa4);
 					document.getElementById("currentFSAA").innerHTML = "4";
-				} else if (newFSAA == "3") {
+				} else if (newFSAA === "3") {
 					var update = dataDisplay.replace(/FSAA=\"\d\"/g, fsaa8);
 					document.getElementById("currentFSAA").innerHTML = "8";
 				}

@@ -8,7 +8,7 @@ This utility helps to set some main parameters for VirCA 0.3.1363 and above. Wor
 4. clone the repository
 5. run the "npm install" in the cloned repository folder
 6. type "npm start" to run the app
-7. type "npm run build" to build the app
+7. (optional) type "npm run build" to build the app
 
 ##Note:
 + VirCA 0.3.1363 or above is must been installed.
